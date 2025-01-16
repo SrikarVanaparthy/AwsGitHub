@@ -30,27 +30,24 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: /package-lock.json
+          cache-dependency-path: package-lock.json
  
       # Step 3: Install dependencies
       - name: Install dependencies
         run: npm ci
         
- 
       # Step 4: Run tests (only for test/dev branch)
       - name: Run tests
         if: github.ref_name == 'test' || github.ref_name == 'dev'
         run: npm test
         
- 
       # Step 5: Build the app
       - name: Build the app
         run: npm run build --verbose
        
- 
       # Step 6: List dist directory
       - name: List dist directory
-        run: ls -alh /dist || echo "Dist directory not found"
+        run: ls -alh dist || echo "Dist directory not found"
  
       # Step 7: Automatically merge to prod (Optional)
       - name: Merge changes to prod
@@ -59,6 +56,7 @@ jobs:
           git config --global user.name "SrikarVanaparthy"
           git config --global user.email "svanaparthy@anergroup.com"
           git checkout prod
+          git pull origin prod
           git merge ${{ github.ref_name }} --no-edit
           git push origin prod
         env:
@@ -69,7 +67,7 @@ jobs:
         if: github.ref_name == 'prod'
         uses: nwtgck/actions-netlify@v3
         with:
-          publish-dir: /dist
+          publish-dir: dist
           production-deploy: true
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
