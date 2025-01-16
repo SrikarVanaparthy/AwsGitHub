@@ -3,6 +3,7 @@ name: Multi-Environment Deployment
 on:
   push:
     branches:
+      - test
       - dev
       - prod
   workflow_dispatch:
@@ -34,22 +35,22 @@ jobs:
       # Step 3: Install dependencies
       - name: Install dependencies
         run: npm ci
-      
+        
  
       # Step 4: Run tests (only for test/dev branch)
       - name: Run tests
         if: github.ref_name == 'test' || github.ref_name == 'dev'
         run: npm test
-       
+        
  
       # Step 5: Build the app
       - name: Build the app
         run: npm run build --verbose
-      
+       
  
       # Step 6: List dist directory
       - name: List dist directory
-        run: ls -alh To_do_app/dist || echo "Dist directory not found"
+        run: ls -alh /dist || echo "Dist directory not found"
  
       # Step 7: Automatically merge to prod (Optional)
       - name: Merge changes to prod
@@ -63,13 +64,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
  
-      # Step 8: Deploy to Netlify
+      # Step 8: Deploy to Netlify (Only for prod branch)
       - name: Deploy to Netlify
+        if: github.ref_name == 'prod'
         uses: nwtgck/actions-netlify@v3
         with:
-          publish-dir: To_do_app/dist
-          production-deploy: ${{ github.ref_name == 'prod' }}
+          publish-dir: /dist
+          production-deploy: true
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_TEST_SITE_ID }}
-          NETLIFY_PROD_SITE_ID: ${{ secrets.NETLIFY_PROD_SITE_ID }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_PROD_SITE_ID }}
